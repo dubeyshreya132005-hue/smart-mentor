@@ -82,7 +82,7 @@ exports.getMe = async (req, res) => {
 // PUT /api/auth/profile (protected)
 exports.updateProfile = async (req, res) => {
   try {
-    const allowedFields = ['name', 'bio', 'skills', 'interests', 'goals', 'github', 'linkedin', 'targetRole', 'learningStyle', 'languagePreference', 'expertise', 'experience', 'availability', 'hourlyRate', 'achievements'];
+    const allowedFields = ['name', 'bio', 'skills', 'skillPoints', 'interests', 'goals', 'github', 'linkedin', 'targetRole', 'learningStyle', 'languagePreference', 'expertise', 'experience', 'availability', 'hourlyRate', 'achievements'];
     const updates = {};
     allowedFields.forEach((field) => {
       if (req.body[field] !== undefined) updates[field] = req.body[field];

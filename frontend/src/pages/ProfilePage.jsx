@@ -11,6 +11,7 @@ export default function ProfilePage() {
     bio: user?.bio || '',
     targetRole: user?.targetRole || '',
     skills: user?.skills || [],
+    skillPoints: user?.skillPoints || {},
     expertise: user?.expertise || [],
     goals: user?.goals || '',
     experience: user?.experience || 0,
@@ -30,11 +31,20 @@ export default function ProfilePage() {
       setNewSkill('');
       return;
     }
+    const updated = [...formData[field], newSkill.trim()];
+    // Initialize skill point to 50 if student and adding to skills
+    const updatedPoints = field === 'skills'
+      ? { ...formData.skillPoints, [newSkill.trim()]: 50 }
+      : formData.skillPoints;
+    setFormData({ ...formData, [field]: updated, skillPoints: updatedPoints });
+    setNewSkill('');
+  };
+
+  const handleSkillPointChange = (skill, value) => {
     setFormData({
       ...formData,
-      [field]: [...formData[field], newSkill.trim()],
+      skillPoints: { ...formData.skillPoints, [skill]: Number(value) },
     });
-    setNewSkill('');
   };
 
   const handleAddAchievement = () => {
@@ -51,10 +61,10 @@ export default function ProfilePage() {
   };
 
   const handleRemoveSkill = (field, skill) => {
-    setFormData({
-      ...formData,
-      [field]: formData[field].filter((s) => s !== skill),
-    });
+    const filtered = formData[field].filter((s) => s !== skill);
+    let updatedPoints = { ...formData.skillPoints };
+    if (field === 'skills') delete updatedPoints[skill];
+    setFormData({ ...formData, [field]: filtered, skillPoints: updatedPoints });
   };
 
   const handleSubmit = async (e) => {
@@ -197,9 +207,16 @@ export default function ProfilePage() {
             )}
 
             <div className="space-y-4">
-              <label className="text-sm font-medium text-slate-600">
-                {user?.role === 'mentor' ? 'Fields of Expertise' : 'My Skills'}
-              </label>
+              <div>
+                <label className="text-sm font-medium text-slate-600">
+                  {user?.role === 'mentor' ? 'Fields of Expertise' : 'My Skills'}
+                </label>
+                {user?.role === 'student' && (
+                  <p className="text-xs text-primary-600 mt-0.5 font-medium">
+                    🎯 Rate each skill below to unlock your Skill Heatmap on the dashboard.
+                  </p>
+                )}
+              </div>
               
               <div className="flex gap-2">
                 <div className="relative flex-1">
@@ -222,25 +239,46 @@ export default function ProfilePage() {
                 </button>
               </div>
 
-              <div className="flex flex-wrap gap-2 min-h-[40px] p-4 bg-transparent/50 border border-slate-200 rounded-xl">
+              <div className="space-y-3 min-h-[40px]">
                 {formData[skillField].length > 0 ? (
                   formData[skillField].map((skill) => (
-                    <span
-                      key={skill}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-500/10 text-primary-400 border border-primary-500/20 rounded-lg text-sm font-medium"
-                    >
-                      {skill}
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveSkill(skillField, skill)}
-                        className="hover:text-red-400 transition-colors"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </span>
+                    <div key={skill} className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-semibold text-primary-700">{skill}</span>
+                        <div className="flex items-center gap-2">
+                          {user?.role === 'student' && (
+                            <span className="text-xs font-bold text-primary-600 bg-primary-50 border border-primary-200 px-2 py-0.5 rounded-full">
+                              {formData.skillPoints[skill] ?? 50}%
+                            </span>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveSkill(skillField, skill)}
+                            className="text-slate-400 hover:text-red-400 transition-colors"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                      {user?.role === 'student' && (
+                        <div>
+                          <input
+                            type="range"
+                            min="1"
+                            max="100"
+                            value={formData.skillPoints[skill] ?? 50}
+                            onChange={(e) => handleSkillPointChange(skill, e.target.value)}
+                            className="w-full h-2 accent-primary-600 rounded-full cursor-pointer"
+                          />
+                          <div className="flex justify-between text-[10px] text-slate-400 mt-0.5">
+                            <span>Beginner</span><span>Expert</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   ))
                 ) : (
-                  <p className="text-sm text-slate-600 italic">No skills added yet.</p>
+                  <p className="text-sm text-slate-600 italic p-4">No skills added yet.</p>
                 )}
               </div>
             </div>

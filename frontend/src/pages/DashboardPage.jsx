@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import {
   Bot, Code, LineChart, BookOpen, Calendar, MessageSquare,
-  Trophy, Flame, Target, TrendingUp, LogOut, User, Zap, FileText
+  Trophy, Target, TrendingUp, LogOut, User, Zap, FileText, BarChart2, AlertCircle
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -98,15 +98,37 @@ export default function DashboardPage() {
     navigate('/');
   };
 
-  const userSkills = user?.skills || [];
-  // For mentors, expertise is used as skills in dashboard view
-  const displaySkills = user?.role === 'mentor' ? (user.expertise || []) : userSkills;
+  // --- Real skill heatmap logic ---
+  // skillPoints is a Map (object) from skill name → 0-100
+  const rawSkillPoints = user?.skillPoints || {};
+  // Mongoose Map comes back as a plain object from API
+  const skillPointsObj = rawSkillPoints instanceof Map
+    ? Object.fromEntries(rawSkillPoints)
+    : rawSkillPoints;
 
-  const skillsData = displaySkills.map((s, idx) => ({
+  const userSkills = user?.skills || [];
+  const skillColors = ['bg-yellow-400', 'bg-blue-400', 'bg-green-400', 'bg-purple-400', 'bg-pink-400', 'bg-orange-400'];
+
+  // All skills have points = every skill has an entry in skillPoints with a value
+  const allSkillsHavePoints =
+    userSkills.length > 0 &&
+    userSkills.every((s) => skillPointsObj[s] !== undefined && skillPointsObj[s] !== null);
+
+  const skillsData = userSkills.map((s, idx) => ({
     skill: s,
-    level: Math.max(30, 100 - (idx * 15)), // Mocking levels for now based on index
-    color: ['bg-yellow-400', 'bg-blue-400', 'bg-green-400', 'bg-purple-400'][idx % 4]
+    level: skillPointsObj[s] ?? null,
+    color: skillColors[idx % skillColors.length],
   }));
+
+  // Real XP progress (cap at 1000 per level)
+  const xp = user?.xp || 0;
+  const xpInLevel = xp % 1000;
+  const xpPercent = Math.round((xpInLevel / 1000) * 100);
+
+  // Career GPS: average skill points as progress
+  const avgSkillLevel = allSkillsHavePoints
+    ? Math.round(skillsData.reduce((sum, s) => sum + s.level, 0) / skillsData.length)
+    : null;
 
   return (
     <div className="min-h-screen mesh-bg flex">
@@ -141,10 +163,14 @@ export default function DashboardPage() {
                 <p className="text-xs text-slate-500 capitalize font-medium">{user?.role}</p>
               </div>
             </div>
+            {/* Real XP progress bar */}
             <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-primary-500 to-emerald-400 w-[65%] rounded-full" />
+              <div
+                className="h-full bg-gradient-to-r from-primary-500 to-emerald-400 rounded-full transition-all"
+                style={{ width: `${xpPercent}%` }}
+              />
             </div>
-            <p className="text-xs text-slate-500 mt-1.5 font-medium">650 / 1000 XP</p>
+            <p className="text-xs text-slate-500 mt-1.5 font-medium">{xpInLevel} / 1000 XP</p>
           </div>
           <button onClick={handleLogout} className="w-full flex items-center gap-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 px-3 py-2 rounded-xl transition-all">
             <LogOut className="w-4 h-4" /> Sign Out
@@ -154,12 +180,8 @@ export default function DashboardPage() {
 
       {/* Main Content */}
       <main className="flex-1 overflow-auto p-8">
-        {/* Header */}
+        {/* Header — no mock streak badge */}
         <div className="mb-8">
-          <div className="flex items-center gap-2 mb-2">
-            <Flame className="w-5 h-5 text-orange-500" />
-            <span className="text-sm text-orange-500 font-bold bg-orange-50 px-3 py-0.5 rounded-full border border-orange-200">7 Day Streak 🔥</span>
-          </div>
           <h1 className="text-3xl font-extrabold text-slate-900">
             Welcome back, {user?.name?.split(' ')[0]} 👋
           </h1>
@@ -170,16 +192,16 @@ export default function DashboardPage() {
         {user?.role === 'mentor' ? (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <StatCard icon={Target} label="Total Earnings" value={`$${(user?.totalSessions || 0) * (user?.hourlyRate || 0)}`} iconBg="bg-gradient-to-br from-green-500 to-emerald-500" sub="All time" />
-            <StatCard icon={Trophy} label="Rating" value={`${user?.rating || 5.0} ⭐`} iconBg="bg-gradient-to-br from-yellow-400 to-orange-400" sub="From 12 reviews" />
+            <StatCard icon={Trophy} label="Rating" value={`${user?.rating || 0} ⭐`} iconBg="bg-gradient-to-br from-yellow-400 to-orange-400" sub={user?.rating ? 'Your current rating' : 'No reviews yet'} />
             <StatCard icon={Calendar} label="Sessions Done" value={user?.totalSessions || 0} iconBg="bg-gradient-to-br from-primary-500 to-teal-500" sub="Great job!" />
-            <StatCard icon={User} label="Profile Views" value={user?.xp || 42} iconBg="bg-gradient-to-br from-purple-500 to-pink-500" sub="This week" />
+            <StatCard icon={User} label="Years of Experience" value={user?.experience || 0} iconBg="bg-gradient-to-br from-purple-500 to-pink-500" sub={user?.experience ? `${user.experience} yr${user.experience > 1 ? 's' : ''}` : 'Add in profile'} />
           </div>
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <StatCard icon={Trophy} label="XP Points" value={user?.xp || 0} iconBg="bg-gradient-to-br from-yellow-400 to-orange-400" sub="+120 this week" />
-            <StatCard icon={Target} label="Skill Score" value={`${user?.confidenceMeter || 50}%`} iconBg="bg-gradient-to-br from-primary-500 to-emerald-500" sub="↑ 8% from last week" />
-            <StatCard icon={Calendar} label="Sessions Done" value={user?.totalSessions || 0} iconBg="bg-gradient-to-br from-teal-500 to-cyan-500" sub="Next: Tomorrow 3PM" />
-            <StatCard icon={Zap} label="Streak" value={`${user?.streak || 0} Days`} iconBg="bg-gradient-to-br from-purple-500 to-indigo-500" sub="Keep it up!" />
+            <StatCard icon={Trophy} label="XP Points" value={user?.xp || 0} iconBg="bg-gradient-to-br from-yellow-400 to-orange-400" sub={user?.xp ? `Level ${Math.floor((user.xp || 0) / 1000) + 1}` : 'Start earning XP!'} />
+            <StatCard icon={Target} label="Skill Score" value={`${user?.confidenceMeter || 0}%`} iconBg="bg-gradient-to-br from-primary-500 to-emerald-500" sub="Your confidence level" />
+            <StatCard icon={Calendar} label="Sessions Done" value={user?.totalSessions || 0} iconBg="bg-gradient-to-br from-teal-500 to-cyan-500" sub={user?.totalSessions ? 'Keep going!' : 'Book your first session'} />
+            <StatCard icon={Zap} label="Day Streak" value={`${user?.streak || 0} Days`} iconBg="bg-gradient-to-br from-purple-500 to-indigo-500" sub={user?.streak ? 'Keep it up! 🔥' : 'Login daily to streak'} />
           </div>
         )}
 
@@ -244,23 +266,50 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="grid lg:grid-cols-3 gap-6">
-            {/* Skill Heatmap */}
+            {/* Skill Heatmap — shown only when all skills have points set */}
             <div className="lg:col-span-2 glass-card rounded-2xl p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-bold text-slate-800">Skill Heatmap</h2>
-                <Link to="/career-gps" className="text-xs font-bold text-primary-600 hover:text-primary-500 transition-colors bg-primary-50 px-3 py-1.5 rounded-full border border-primary-200">View Career GPS →</Link>
-              </div>
-              {skillsData.length > 0 ? (
-                skillsData.map((s) => <SkillBar key={s.skill} {...s} />)
-              ) : (
-                <p className="text-slate-600 text-sm italic mb-6 text-center py-4">No skills added yet. Go to Profile to add some!</p>
-              )}
-              <div className="mt-4 pt-4 border-t border-slate-100">
-                <p className="text-xs text-slate-500 mb-2 font-medium">Targeting <span className="text-primary-700 font-bold">{user?.targetRole || 'Software Developer'}</span></p>
-                <div className="flex flex-wrap gap-2">
-                  <p className="text-[10px] text-slate-600">Add skills to generate your AI roadmap.</p>
+                <div className="flex items-center gap-2">
+                  <BarChart2 className="w-5 h-5 text-primary-600" />
+                  <h2 className="text-lg font-bold text-slate-800">Skill Heatmap</h2>
                 </div>
+                <Link to="/profile" className="text-xs font-bold text-primary-600 hover:text-primary-500 transition-colors bg-primary-50 px-3 py-1.5 rounded-full border border-primary-200">
+                  Edit Skills →
+                </Link>
               </div>
+
+              {userSkills.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-10 text-center gap-3">
+                  <AlertCircle className="w-10 h-10 text-slate-300" />
+                  <p className="text-slate-500 font-semibold">No skills added yet</p>
+                  <p className="text-sm text-slate-400">Go to your profile to add skills and rate your proficiency.</p>
+                  <Link to="/profile" className="mt-2 px-5 py-2 bg-primary-600 hover:bg-primary-500 text-white text-sm font-bold rounded-xl transition-all shadow-md shadow-primary-500/20">
+                    Add Skills Now
+                  </Link>
+                </div>
+              ) : !allSkillsHavePoints ? (
+                <div className="flex flex-col items-center justify-center py-10 text-center gap-3">
+                  <BarChart2 className="w-10 h-10 text-slate-300" />
+                  <p className="text-slate-500 font-semibold">Rate all your skills to unlock the heatmap</p>
+                  <p className="text-sm text-slate-400">
+                    You have {userSkills.filter(s => skillPointsObj[s] !== undefined).length}/{userSkills.length} skills rated.
+                    Set proficiency levels for all skills in your profile.
+                  </p>
+                  <Link to="/profile" className="mt-2 px-5 py-2 bg-primary-600 hover:bg-primary-500 text-white text-sm font-bold rounded-xl transition-all shadow-md shadow-primary-500/20">
+                    Set Skill Points
+                  </Link>
+                </div>
+              ) : (
+                <>
+                  {skillsData.map((s) => <SkillBar key={s.skill} {...s} />)}
+                  <div className="mt-4 pt-4 border-t border-slate-100">
+                    <p className="text-xs text-slate-500 mb-1 font-medium">
+                      Targeting <span className="text-primary-700 font-bold">{user?.targetRole || 'a role'}</span>
+                    </p>
+                    <p className="text-[11px] text-slate-400">Based on your self-rated skill points from your profile.</p>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Career GPS & Quick Actions */}
@@ -268,15 +317,26 @@ export default function DashboardPage() {
               {/* Career GPS Card */}
               <div className="bg-white/70 border border-slate-200 shadow-sm glass rounded-2xl p-6">
                 <h2 className="text-lg font-bold text-slate-800 mb-4">Career GPS</h2>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 rounded-full bg-primary-600/20 text-primary-400 flex items-center justify-center text-xs font-bold">You</div>
-                  <div className="flex-1 h-1 bg-slate-200 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-primary-500 to-emerald-400 w-[45%]" />
+                {avgSkillLevel !== null ? (
+                  <>
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-8 h-8 rounded-full bg-primary-600/20 text-primary-400 flex items-center justify-center text-xs font-bold">You</div>
+                      <div className="flex-1 h-1 bg-slate-200 rounded-full overflow-hidden">
+                        <div className="h-full bg-gradient-to-r from-primary-500 to-emerald-400 transition-all" style={{ width: `${avgSkillLevel}%` }} />
+                      </div>
+                      <div className="w-8 h-8 rounded-full bg-blue-600/20 text-blue-400 flex items-center justify-center text-xs font-bold">🎯</div>
+                    </div>
+                    <p className="text-sm text-slate-600 text-center">
+                      {avgSkillLevel}% avg. proficiency towards{' '}
+                      <span className="text-slate-800 font-medium">{user?.targetRole || 'your goal'}</span>
+                    </p>
+                  </>
+                ) : (
+                  <div className="text-center py-4">
+                    <p className="text-sm text-slate-500">Rate your skills to see your progress towards</p>
+                    <p className="text-sm font-bold text-slate-800 mt-1">{user?.targetRole || 'your target role'}</p>
                   </div>
-                  <div className="w-8 h-8 rounded-full bg-blue-600/20 text-blue-400 flex items-center justify-center text-xs font-bold">🎯</div>
-                </div>
-                <p className="text-sm text-slate-600 text-center">45% towards <span className="text-slate-800 font-medium">{user?.targetRole || 'Full Stack Developer'}</span></p>
-                <p className="text-xs text-slate-600 text-center mt-1">Est. 14 weeks at current pace</p>
+                )}
                 <Link to="/career-gps" className="mt-4 w-full flex items-center justify-center gap-1 text-xs font-semibold text-primary-400 bg-primary-500/10 hover:bg-primary-500/20 border border-primary-500/20 py-2 rounded-lg transition-all">
                   <TrendingUp className="w-3 h-3" /> View Full Roadmap
                 </Link>
@@ -302,21 +362,6 @@ export default function DashboardPage() {
                 </div>
               </div>
             </div>
-          </div>
-        )}
-
-        {/* Daily Challenge */}
-        {user?.role !== 'mentor' && (
-          <div className="mt-6 glass border border-yellow-500/20 rounded-2xl p-5 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-yellow-500/10 flex items-center justify-center text-2xl shrink-0">⚡</div>
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-yellow-400">Daily Challenge</p>
-              <p className="text-slate-800 font-medium">Build a REST API with Express & MongoDB</p>
-              <p className="text-xs text-slate-600 mt-0.5">Earn 150 XP • Estimated: 45 minutes</p>
-            </div>
-            <Link to="/sandbox" className="shrink-0 px-4 py-2 bg-yellow-500/20 hover:bg-yellow-500/30 border border-yellow-500/30 text-yellow-400 text-sm font-semibold rounded-xl transition-all">
-              Start Now
-            </Link>
           </div>
         )}
       </main>

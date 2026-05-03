@@ -39,6 +39,11 @@ const userSchema = new mongoose.Schema(
     },
     // Common profile fields
     skills: [{ type: String }],
+    skillPoints: {
+      type: Map,
+      of: { type: Number, min: 0, max: 100 },
+      default: {},
+    },
     interests: [{ type: String }],
     goals: { type: String, default: '' },
     achievements: [{ type: String }],
