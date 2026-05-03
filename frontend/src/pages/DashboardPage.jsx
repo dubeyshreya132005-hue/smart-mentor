@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import {
   Bot, Code, LineChart, BookOpen, Calendar, MessageSquare,
-  Trophy, Flame, Target, TrendingUp, LogOut, User, Zap
+  Trophy, Flame, Target, TrendingUp, LogOut, User, Zap, FileText
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -115,6 +115,7 @@ export default function DashboardPage() {
         <NavItem icon={LineChart} label="Dashboard" to="/dashboard" active />
         <NavItem icon={User} label="My Profile" to="/profile" />
         <NavItem icon={Bot} label="AI Assistant" to="/ai-assistant" />
+        <NavItem icon={FileText} label="Resume Analyzer" to="/resume-analyzer" />
         {user?.role !== 'mentor' && <NavItem icon={BookOpen} label="Mentors" to="/mentors" />}
         <NavItem icon={Calendar} label="Sessions" to="/sessions" />
         <NavItem icon={Code} label="Code Sandbox" to="/sandbox" />
@@ -279,7 +280,7 @@ export default function DashboardPage() {
                 <div className="space-y-2">
                   {[
                     { icon: Bot, label: 'Ask AI Assistant', to: '/ai-assistant', color: 'text-primary-400 bg-primary-500/10' },
-                    { icon: Code, label: 'Open Sandbox', to: '/sandbox', color: 'text-blue-400 bg-blue-500/10' },
+                    { icon: FileText, label: 'Resume Analyzer', to: '/resume-analyzer', color: 'text-green-400 bg-green-500/10' },
                     { icon: BookOpen, label: 'Find a Mentor', to: '/mentors', color: 'text-purple-400 bg-purple-500/10' },
                   ].map(({ icon: Icon, label, to, color }) => (
                     <Link key={label} to={to} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-800/50 transition-all group">

@@ -13,6 +13,7 @@ import CareerRoadmap from './pages/CareerRoadmap';
 import AIAssistantPage from './pages/AIAssistantPage';
 import SandboxPage from './pages/SandboxPage';
 import AchievementsPage from './pages/AchievementsPage';
+import ResumeAnalyzerPage from './pages/ResumeAnalyzerPage';
 
 // Protected Route wrapper
 function ProtectedRoute({ children }) {
@@ -151,6 +152,7 @@ function App() {
           <Route path="/ai-assistant" element={<ProtectedRoute><AIAssistantPage /></ProtectedRoute>} />
           <Route path="/achievements" element={<ProtectedRoute><AchievementsPage /></ProtectedRoute>} />
           <Route path="/career-gps" element={<ProtectedRoute><CareerRoadmap /></ProtectedRoute>} />
+          <Route path="/resume-analyzer" element={<ProtectedRoute><ResumeAnalyzerPage /></ProtectedRoute>} />
         </Routes>
       </AuthProvider>
     </Router>

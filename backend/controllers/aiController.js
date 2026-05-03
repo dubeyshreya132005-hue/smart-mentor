@@ -1,13 +1,14 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
 const User = require("../models/User");
+const pdf = require('pdf-parse');
+const { OpenRouter } = require("@openrouter/sdk");
 
-// Helper to get Gemini AI instance
-const getGenAI = () => {
-  const apiKey = process.env.GEMINI_API_KEY;
+// Helper to get OpenRouter instance
+const getOpenRouter = () => {
+  const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is missing in environment variables.");
+    throw new Error("OPENROUTER_API_KEY is missing in environment variables.");
   }
-  return new GoogleGenerativeAI(apiKey);
+  return new OpenRouter({ apiKey });
 };
 
 // POST /api/ai/roadmap
@@ -16,8 +17,7 @@ exports.generateRoadmap = async (req, res) => {
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ success: false, message: "User not found." });
 
-    const genAI = getGenAI();
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const openrouter = getOpenRouter();
 
     const prompt = `
       As an expert career mentor, generate a structured career roadmap for a student with the following profile:
@@ -35,12 +35,29 @@ exports.generateRoadmap = async (req, res) => {
       Format the response ONLY as a JSON array.
     `;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const stream = await openrouter.chat.send({
+      chatRequest: {
+        model: "tencent/hy3-preview:free",
+        messages: [
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        stream: true
+      }
+    });
+
+    let fullResponse = "";
+    for await (const chunk of stream) {
+      const content = chunk.choices[0]?.delta?.content;
+      if (content) {
+        fullResponse += content;
+      }
+    }
     
     // Clean up potential markdown formatting from AI response
-    const jsonStr = text.replace(/```json|```/g, "").trim();
+    const jsonStr = fullResponse.replace(/```json|```/g, "").trim();
     const roadmap = JSON.parse(jsonStr);
 
     res.status(200).json({ success: true, roadmap });
@@ -56,7 +73,7 @@ exports.chatWithAI = async (req, res) => {
     const { message, history } = req.body;
     const user = await User.findById(req.user.id);
 
-    const genAI = getGenAI();
+    const openrouter = getOpenRouter();
     const systemPrompt = `You are "MentorConnect AI", an elite, friendly, and highly technical career mentor.
     You are directly mentoring ${user?.name || "a student"}.
     - Their current skills: ${user?.skills?.join(', ') || 'None listed'}.
@@ -70,24 +87,96 @@ exports.chatWithAI = async (req, res) => {
     4. Be highly encouraging but technically rigorous.
     5. Always tailor your advice specifically to their target role and current skills.`;
 
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-2.5-flash",
-      systemInstruction: systemPrompt 
+    // Convert history format if necessary (Assuming history is an array of {role, parts: [{text}]} from Gemini)
+    // Map to OpenRouter format: {role, content}
+    const formattedHistory = (history || []).map(msg => ({
+      role: msg.role === 'model' ? 'assistant' : 'user',
+      content: msg.parts ? msg.parts[0].text : msg.content
+    }));
+
+    const messages = [
+      { role: 'system', content: systemPrompt },
+      ...formattedHistory,
+      { role: 'user', content: message }
+    ];
+
+    const stream = await openrouter.chat.send({
+      chatRequest: {
+        model: "tencent/hy3-preview:free",
+        messages: messages,
+        stream: true
+      }
     });
 
-    const chat = model.startChat({
-      history: history || [],
-      generationConfig: {
-        maxOutputTokens: 800,
-      },
-    });
-
-    const result = await chat.sendMessage(message);
-    const response = await result.response;
+    let fullResponse = "";
+    for await (const chunk of stream) {
+      const content = chunk.choices[0]?.delta?.content;
+      if (content) {
+        fullResponse += content;
+      }
+    }
     
-    res.status(200).json({ success: true, reply: response.text() });
+    res.status(200).json({ success: true, reply: fullResponse });
   } catch (err) {
     console.error("AI Chat error:", err.message);
     res.status(500).json({ success: false, message: `AI Assistant error: ${err.message}` });
+  }
+};
+
+// POST /api/ai/analyze-resume
+exports.analyzeResume = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: "No resume file provided." });
+    }
+
+    const data = await pdf(req.file.buffer);
+    const resumeText = data.text;
+
+    const openrouter = getOpenRouter();
+
+    const prompt = `
+      You are an expert career counselor. Analyze the following resume text and suggest the top 3 best-fitting job roles for this person based on their skills and projects. 
+      Also provide a brief reasoning for each role.
+
+      Resume Text:
+      ${resumeText}
+
+      Format your response strictly as a JSON array where each object has:
+      - role: The suggested job role (e.g., "Frontend Developer")
+      - reasoning: A 1-2 sentence explanation of why this role fits based on their specific skills and projects.
+      - matchScore: A percentage string (e.g., "95%") indicating how well their profile matches.
+
+      Only return the JSON array without any extra text or markdown formatting.
+    `;
+
+    const stream = await openrouter.chat.send({
+      chatRequest: {
+        model: "tencent/hy3-preview:free",
+        messages: [
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        stream: true
+      }
+    });
+
+    let fullResponse = "";
+    for await (const chunk of stream) {
+      const content = chunk.choices[0]?.delta?.content;
+      if (content) {
+        fullResponse += content;
+      }
+    }
+    
+    const jsonStr = fullResponse.replace(/```json|```/g, "").trim();
+    const suggestions = JSON.parse(jsonStr);
+
+    res.status(200).json({ success: true, suggestions });
+  } catch (err) {
+    console.error("Resume analysis error:", err.message);
+    res.status(500).json({ success: false, message: `AI Error: ${err.message}` });
   }
 };
