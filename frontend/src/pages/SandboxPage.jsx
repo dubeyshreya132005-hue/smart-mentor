@@ -94,21 +94,21 @@ export default function SandboxPage() {
   };
 
   return (
-    <div className="flex h-screen bg-dark-900 text-slate-100 overflow-hidden">
+    <div className="flex h-screen bg-transparent text-slate-900 overflow-hidden">
       {/* Sidebar for Connections */}
       {isSidebarOpen && (
-        <aside className="w-72 glass border-r border-slate-800/50 flex flex-col transition-all">
-          <div className="p-4 border-b border-slate-800/50 flex justify-between items-center">
+        <aside className="w-72 bg-white/70 border-r border-slate-200 glass flex flex-col transition-all">
+          <div className="p-4 border-b border-slate-200 flex justify-between items-center">
             <h2 className="font-bold flex items-center gap-2"><Users className="w-4 h-4"/> Collaborate</h2>
-            <button onClick={() => setIsSidebarOpen(false)} className="text-slate-400 hover:text-white">
+            <button onClick={() => setIsSidebarOpen(false)} className="text-slate-600 hover:text-slate-800">
               <X className="w-4 h-4" />
             </button>
           </div>
-          <div className="p-3 border-b border-slate-800/50 bg-dark-800">
+          <div className="p-3 border-b border-slate-200 bg-slate-50">
              <button
                 onClick={() => setActiveContact(null)}
                 className={`w-full text-left p-3 rounded-lg text-sm transition-all ${
-                  !activeContact ? 'bg-primary-600 text-white' : 'hover:bg-slate-800 text-slate-300'
+                  !activeContact ? 'bg-primary-600 text-white' : 'hover:bg-slate-800 text-slate-700'
                 }`}
               >
                 Use Alone (Local Sandbox)
@@ -129,8 +129,8 @@ export default function SandboxPage() {
                   {contact.name.charAt(0)}
                 </div>
                 <div className="flex-1 min-w-0 text-left">
-                  <p className="text-sm font-bold text-white truncate">{contact.name}</p>
-                  <p className="text-[10px] text-slate-400 truncate capitalize">{contact.role}</p>
+                  <p className="text-sm font-bold text-slate-800 truncate">{contact.name}</p>
+                  <p className="text-[10px] text-slate-600 truncate capitalize">{contact.role}</p>
                 </div>
               </button>
             ))}
@@ -140,10 +140,10 @@ export default function SandboxPage() {
 
       {/* Editor Area */}
       <main className="flex-1 flex flex-col min-w-0 relative">
-        <header className="h-14 glass border-b border-slate-800/50 flex items-center justify-between px-4">
+        <header className="h-14 glass border-b border-slate-200 flex items-center justify-between px-4">
           <div className="flex items-center gap-3">
             {!isSidebarOpen && (
-              <button onClick={() => setIsSidebarOpen(true)} className="p-1.5 rounded-lg bg-dark-800 text-slate-400 hover:text-white">
+              <button onClick={() => setIsSidebarOpen(true)} className="p-1.5 rounded-lg bg-slate-50 text-slate-600 hover:text-slate-800">
                 <Users className="w-4 h-4" />
               </button>
             )}
@@ -163,7 +163,7 @@ export default function SandboxPage() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate(-1)}
-              className="flex items-center gap-2 px-3 py-1.5 bg-dark-800 hover:bg-slate-800 text-slate-300 text-sm font-semibold rounded-lg transition-all border border-slate-700/50"
+              className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 hover:bg-slate-800 text-slate-700 text-sm font-semibold rounded-lg transition-all border border-slate-200"
               title="Minimize Sandbox"
             >
               <Minimize2 className="w-4 h-4" />
@@ -179,7 +179,7 @@ export default function SandboxPage() {
         
         <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
           {/* Monaco Editor */}
-          <div className="flex-1 border-r border-slate-800/50">
+          <div className="flex-1 border-r border-slate-200">
             <Editor
               height="100%"
               defaultLanguage="javascript"
@@ -197,11 +197,11 @@ export default function SandboxPage() {
           
           {/* Output Pane */}
           <div className="w-full lg:w-1/3 flex flex-col bg-dark-950">
-            <div className="px-4 py-2 bg-dark-900 border-b border-slate-800/50 flex items-center gap-2">
-              <Layout className="w-4 h-4 text-slate-400" />
-              <span className="text-xs font-semibold text-slate-300 tracking-wider uppercase">Console Output</span>
+            <div className="px-4 py-2 bg-transparent border-b border-slate-200 flex items-center gap-2">
+              <Layout className="w-4 h-4 text-slate-600" />
+              <span className="text-xs font-semibold text-slate-700 tracking-wider uppercase">Console Output</span>
             </div>
-            <div className="flex-1 p-4 font-mono text-sm overflow-auto text-slate-300">
+            <div className="flex-1 p-4 font-mono text-sm overflow-auto text-slate-700">
               {output ? (
                 <pre className="whitespace-pre-wrap">{output}</pre>
               ) : (

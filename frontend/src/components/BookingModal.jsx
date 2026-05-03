@@ -44,13 +44,13 @@ export default function BookingModal({ mentor, onClose }) {
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-dark-900/80 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-transparent/80 backdrop-blur-sm" onClick={onClose} />
       
-      <div className="relative w-full max-w-lg glass border border-slate-800/50 rounded-3xl shadow-2xl overflow-hidden">
+      <div className="relative w-full max-w-lg bg-white/70 border border-slate-200 shadow-sm glass rounded-3xl shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="p-6 border-b border-slate-800/50 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-white">Book a Session</h2>
-          <button onClick={onClose} className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-all">
+        <div className="p-6 border-b border-slate-200 flex items-center justify-between">
+          <h2 className="text-xl font-bold text-slate-800">Book a Session</h2>
+          <button onClick={onClose} className="p-2 text-slate-600 hover:text-slate-800 hover:bg-slate-800 rounded-xl transition-all">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -64,28 +64,28 @@ export default function BookingModal({ mentor, onClose }) {
                   {mentor.name.charAt(0)}
                 </div>
                 <div>
-                  <p className="text-sm text-slate-400">Mentoring with</p>
-                  <p className="font-bold text-white text-lg">{mentor.name}</p>
+                  <p className="text-sm text-slate-600">Mentoring with</p>
+                  <p className="font-bold text-slate-800 text-lg">{mentor.name}</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                  <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-primary-500" /> Select Date
                   </label>
                   <input
                     type="date"
-                    className="w-full bg-dark-800 border border-slate-700/50 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:border-primary-500 text-white"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:border-primary-500 text-slate-800"
                     onChange={(e) => setForm({...form, date: e.target.value})}
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                  <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
                     <Clock className="w-4 h-4 text-primary-500" /> Select Slot
                   </label>
                   <select
-                    className="w-full bg-dark-800 border border-slate-700/50 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:border-primary-500 text-white"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:border-primary-500 text-slate-800"
                     onChange={(e) => setForm({...form, slot: e.target.value})}
                   >
                     <option value="">Choose slot</option>
@@ -108,22 +108,22 @@ export default function BookingModal({ mentor, onClose }) {
           {step === 2 && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
                   <MessageSquare className="w-4 h-4 text-primary-500" /> What do you want to discuss?
                 </label>
                 <input
                   type="text"
                   placeholder="e.g., React System Design, Mock Interview"
-                  className="w-full bg-dark-800 border border-slate-700/50 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:border-primary-500 text-white"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:border-primary-500 text-slate-800"
                   onChange={(e) => setForm({...form, topic: e.target.value})}
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300">Message to Mentor (Optional)</label>
+                <label className="text-sm font-medium text-slate-700">Message to Mentor (Optional)</label>
                 <textarea
                   placeholder="Tell the mentor about your current challenges..."
-                  className="w-full bg-dark-800 border border-slate-700/50 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:border-primary-500 text-white h-32"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:border-primary-500 text-slate-800 h-32"
                   onChange={(e) => setForm({...form, message: e.target.value})}
                 />
               </div>
@@ -131,7 +131,7 @@ export default function BookingModal({ mentor, onClose }) {
               <div className="flex gap-4">
                 <button
                   onClick={() => setStep(1)}
-                  className="flex-1 px-4 py-3 glass border border-slate-700/50 text-slate-300 font-bold rounded-2xl hover:bg-slate-800 transition-all"
+                  className="flex-1 px-4 py-3 glass border border-slate-200 text-slate-700 font-bold rounded-2xl hover:bg-slate-800 transition-all"
                 >
                   Back
                 </button>
@@ -151,8 +151,8 @@ export default function BookingModal({ mentor, onClose }) {
               <div className="w-20 h-20 bg-primary-500/10 text-primary-500 rounded-full flex items-center justify-center mx-auto mb-6">
                 <CheckCircle2 className="w-10 h-10 animate-bounce" />
               </div>
-              <h3 className="text-2xl font-bold text-white">Booking Request Sent!</h3>
-              <p className="text-slate-400">
+              <h3 className="text-2xl font-bold text-slate-800">Booking Request Sent!</h3>
+              <p className="text-slate-600">
                 Mentor will review your request and get back to you shortly. You can check your sessions in the dashboard.
               </p>
               <button

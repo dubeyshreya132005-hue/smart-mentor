@@ -90,17 +90,17 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="flex h-screen bg-dark-900 text-slate-100 overflow-hidden">
+    <div className="flex h-screen bg-transparent text-slate-900 overflow-hidden">
       {/* Sidebar */}
-      <aside className="w-80 glass border-r border-slate-800/50 flex flex-col">
-        <div className="p-6 border-b border-slate-800/50">
-          <h2 className="text-xl font-bold text-white mb-4">Messages</h2>
+      <aside className="w-80 bg-white/70 border-r border-slate-200 glass flex flex-col">
+        <div className="p-6 border-b border-slate-200">
+          <h2 className="text-xl font-bold text-slate-800 mb-4">Messages</h2>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
             <input
               type="text"
               placeholder="Search chats..."
-              className="w-full bg-dark-800 border border-slate-700/50 rounded-xl py-2 pl-9 pr-4 text-sm focus:outline-none focus:border-primary-500"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 pl-9 pr-4 text-sm focus:outline-none focus:border-primary-500"
             />
           </div>
         </div>
@@ -119,10 +119,10 @@ export default function ChatPage() {
               </div>
               <div className="flex-1 min-w-0 text-left">
                 <div className="flex justify-between items-start mb-1">
-                  <p className="text-sm font-bold text-white truncate">{contact.name}</p>
-                  <span className="text-[10px] text-slate-500">12:45 PM</span>
+                  <p className="text-sm font-bold text-slate-800 truncate">{contact.name}</p>
+                  <span className="text-[10px] text-slate-600">12:45 PM</span>
                 </div>
-                <p className="text-xs text-slate-400 truncate capitalize">{contact.role}</p>
+                <p className="text-xs text-slate-600 truncate capitalize">{contact.role}</p>
               </div>
             </button>
           ))}
@@ -134,32 +134,32 @@ export default function ChatPage() {
         {activeContact ? (
           <>
             {/* Chat Header */}
-            <header className="p-4 glass border-b border-slate-800/50 flex items-center justify-between">
+            <header className="p-4 glass border-b border-slate-200 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center font-bold text-white">
                   {activeContact.name.charAt(0)}
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-white">{activeContact.name}</h3>
+                  <h3 className="text-sm font-bold text-slate-800">{activeContact.name}</h3>
                   <div className="flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-primary-500"></span>
-                    <span className="text-[10px] text-slate-400">Online</span>
+                    <span className="text-[10px] text-slate-600">Online</span>
                   </div>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <button 
                   onClick={() => navigate(`/sandbox?with=${activeContact._id}`)}
-                  className="p-2 text-slate-400 hover:text-primary-400 hover:bg-primary-500/10 rounded-lg transition-all"
+                  className="p-2 text-slate-600 hover:text-primary-400 hover:bg-primary-500/10 rounded-lg transition-all"
                   title="Live Coding Sandbox"
                 >
                   <Code className="w-4 h-4" />
                 </button>
-                <button className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all"><Phone className="w-4 h-4" /></button>
-                <button className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all"><Video className="w-4 h-4" /></button>
+                <button className="p-2 text-slate-600 hover:text-slate-800 hover:bg-slate-800 rounded-lg transition-all"><Phone className="w-4 h-4" /></button>
+                <button className="p-2 text-slate-600 hover:text-slate-800 hover:bg-slate-800 rounded-lg transition-all"><Video className="w-4 h-4" /></button>
                 <button 
                   onClick={() => handleDisconnect(activeContact._id)}
-                  className="p-2 text-red-400 hover:text-white hover:bg-red-500/20 rounded-lg transition-all"
+                  className="p-2 text-red-400 hover:text-slate-800 hover:bg-red-500/20 rounded-lg transition-all"
                   title="Remove Connection"
                 >
                   <UserMinus className="w-4 h-4" />
@@ -178,7 +178,7 @@ export default function ChatPage() {
                     className={`max-w-[70%] p-3 rounded-2xl text-sm ${
                       msg.sender === user._id
                         ? 'bg-primary-600 text-white rounded-tr-none'
-                        : 'glass border border-slate-700/50 text-slate-200 rounded-tl-none'
+                        : 'glass border border-slate-200 text-slate-800 rounded-tl-none'
                     }`}
                   >
                     <p>{msg.text}</p>
@@ -192,18 +192,18 @@ export default function ChatPage() {
             </div>
 
             {/* Input Area */}
-            <form onSubmit={handleSendMessage} className="p-4 glass border-t border-slate-800/50">
-              <div className="flex items-center gap-3 bg-dark-800 border border-slate-700/50 rounded-2xl p-2 pl-4 shadow-inner">
-                <button type="button" className="text-slate-500 hover:text-white transition-colors">
+            <form onSubmit={handleSendMessage} className="p-4 glass border-t border-slate-200">
+              <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-2xl p-2 pl-4 shadow-inner">
+                <button type="button" className="text-slate-600 hover:text-slate-800 transition-colors">
                   <Smile className="w-5 h-5" />
                 </button>
-                <button type="button" className="text-slate-500 hover:text-white transition-colors">
+                <button type="button" className="text-slate-600 hover:text-slate-800 transition-colors">
                   <Paperclip className="w-5 h-5" />
                 </button>
                 <input
                   type="text"
                   placeholder="Type a message..."
-                  className="flex-1 bg-transparent border-none text-sm focus:outline-none text-white py-2"
+                  className="flex-1 bg-transparent border-none text-sm focus:outline-none text-slate-800 py-2"
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                 />
@@ -219,11 +219,11 @@ export default function ChatPage() {
           </>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
-            <div className="w-20 h-20 bg-dark-800 rounded-full flex items-center justify-center mb-6 border border-slate-800">
+            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6 border border-slate-800">
               <MessageSquare className="w-10 h-10 text-slate-600" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">Select a Conversation</h3>
-            <p className="text-slate-500 max-w-xs">Choose a mentor or student from the sidebar to start chatting in real-time.</p>
+            <h3 className="text-xl font-bold text-slate-800 mb-2">Select a Conversation</h3>
+            <p className="text-slate-600 max-w-xs">Choose a mentor or student from the sidebar to start chatting in real-time.</p>
           </div>
         )}
       </main>

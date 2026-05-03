@@ -61,31 +61,31 @@ export default function AIAssistantPage() {
   };
 
   return (
-    <div className="flex h-screen bg-dark-900 text-slate-100 overflow-hidden">
-      <div className="flex-1 flex flex-col relative max-w-4xl mx-auto border-x border-slate-800/50 shadow-2xl shadow-primary-500/5">
+    <div className="flex h-screen bg-transparent text-slate-900 overflow-hidden">
+      <div className="flex-1 flex flex-col relative max-w-4xl mx-auto border-x border-slate-200 shadow-2xl shadow-primary-500/5">
         {/* Header */}
-        <header className="p-4 glass border-b border-slate-800/50 flex items-center justify-between">
+        <header className="p-4 glass border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link to="/dashboard" className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all">
+            <Link to="/dashboard" className="p-2 text-slate-600 hover:text-primary-700 hover:bg-primary-50 rounded-lg transition-all">
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <div className="w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/20">
-              <Bot className="w-6 h-6 text-white" />
+              <Bot className="w-6 h-6 text-slate-800" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+              <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
                 AI Mentor Assistant
                 <Sparkles className="w-3.5 h-3.5 text-primary-400" />
               </h3>
               <div className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary-500 animate-pulse"></span>
-                <span className="text-[10px] text-slate-400 font-medium">Powered by Gemini AI</span>
+                <span className="text-[10px] text-slate-600 font-medium">Powered by Gemini AI</span>
               </div>
             </div>
           </div>
           <button 
             onClick={clearChat}
-            className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all flex items-center gap-2 text-xs font-medium"
+            className="p-2 text-slate-600 hover:text-primary-700 hover:bg-primary-50 rounded-lg transition-all flex items-center gap-2 text-xs font-medium"
           >
             <RotateCcw className="w-4 h-4" /> Reset
           </button>
@@ -100,15 +100,15 @@ export default function AIAssistantPage() {
             >
               <div className={`flex gap-3 max-w-[85%] ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-1 ${
-                  msg.role === 'user' ? 'bg-blue-600' : 'bg-primary-600 shadow-lg shadow-primary-500/10'
+                  msg.role === 'user' ? 'bg-primary-600' : 'bg-primary-100 shadow-lg shadow-primary-500/10'
                 }`}>
-                  {msg.role === 'user' ? <User className="w-4 h-4 text-white" /> : <Bot className="w-4 h-4 text-white" />}
+                  {msg.role === 'user' ? <User className="w-4 h-4 text-white" /> : <Bot className="w-4 h-4 text-primary-600" />}
                 </div>
                 <div
                   className={`p-4 rounded-2xl text-sm leading-relaxed ${
                     msg.role === 'user'
-                      ? 'bg-blue-600 text-white rounded-tr-none'
-                      : 'glass border border-slate-700/50 text-slate-200 rounded-tl-none shadow-xl'
+                      ? 'bg-primary-600 text-white rounded-tr-none'
+                      : 'bg-white/80 border border-slate-200 text-slate-800 rounded-tl-none shadow-md'
                   }`}
                 >
                   {msg.parts[0].text.split('\n').map((line, i) => (
@@ -121,10 +121,10 @@ export default function AIAssistantPage() {
           {loading && (
             <div className="flex justify-start">
               <div className="flex gap-3 max-w-[85%]">
-                <div className="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center shrink-0 mt-1 shadow-lg shadow-primary-500/10">
-                  <Bot className="w-4 h-4 text-white" />
+                <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center shrink-0 mt-1">
+                  <Bot className="w-4 h-4 text-primary-600" />
                 </div>
-                <div className="glass border border-slate-700/50 text-slate-400 p-4 rounded-2xl rounded-tl-none flex items-center gap-2">
+                <div className="glass border border-slate-200 text-slate-600 p-4 rounded-2xl rounded-tl-none flex items-center gap-2">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   <span className="text-xs">Thinking...</span>
                 </div>
@@ -135,14 +135,14 @@ export default function AIAssistantPage() {
         </div>
 
         {/* Input Area */}
-        <div className="p-6 glass border-t border-slate-800/50">
+        <div className="p-6 glass border-t border-slate-200">
           <form onSubmit={handleSendMessage} className="relative group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-primary-500 to-blue-500 rounded-2xl opacity-20 group-focus-within:opacity-40 transition-all blur"></div>
-            <div className="relative flex items-center gap-3 bg-dark-800 border border-slate-700/50 rounded-2xl p-2 pl-4 shadow-2xl">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-primary-500 to-emerald-400 rounded-2xl opacity-20 group-focus-within:opacity-40 transition-all blur"></div>
+            <div className="relative flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-2xl p-2 pl-4 shadow-2xl">
               <input
                 type="text"
                 placeholder="Ask anything about your career, coding, or interviews..."
-                className="flex-1 bg-transparent border-none text-sm focus:outline-none text-white py-3"
+                className="flex-1 bg-transparent border-none text-sm focus:outline-none text-slate-800 py-3"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
               />
@@ -155,7 +155,7 @@ export default function AIAssistantPage() {
               </button>
             </div>
           </form>
-          <p className="text-[10px] text-slate-500 text-center mt-4 uppercase tracking-widest font-bold">
+          <p className="text-[10px] text-slate-600 text-center mt-4 uppercase tracking-widest font-bold">
             MentorConnect AI can make mistakes. Verify important info.
           </p>
         </div>
