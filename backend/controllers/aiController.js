@@ -136,18 +136,31 @@ exports.analyzeResume = async (req, res) => {
     const openrouter = getOpenRouter();
 
     const prompt = `
-      You are an expert career counselor. Analyze the following resume text and suggest the top 3 best-fitting job roles for this person based on their skills and projects. 
-      Also provide a brief reasoning for each role.
+      You are an expert career counselor and ATS (Applicant Tracking System) simulator. Analyze the following resume text.
+      Provide the following:
+      1. An overall ATS Score (0-100) based on readability, keyword optimization, and structure.
+      2. 3-4 Strong Points of the resume.
+      3. 3-4 Weak Points or areas for improvement.
+      4. Top 3 best-fitting job roles based on their skills and projects.
 
       Resume Text:
       ${resumeText}
 
-      Format your response strictly as a JSON array where each object has:
-      - role: The suggested job role (e.g., "Frontend Developer")
-      - reasoning: A 1-2 sentence explanation of why this role fits based on their specific skills and projects.
-      - matchScore: A percentage string (e.g., "95%") indicating how well their profile matches.
+      Format your response strictly as a JSON object with the following structure:
+      {
+        "atsScore": 85,
+        "strongPoints": ["Good use of action verbs", "Clear project descriptions"],
+        "weakPoints": ["Missing metrics in experience", "Formatting could be cleaner"],
+        "suggestions": [
+          {
+            "role": "Frontend Developer",
+            "reasoning": "Strong React skills and relevant UI projects.",
+            "matchScore": "95%"
+          }
+        ]
+      }
 
-      Only return the JSON array without any extra text or markdown formatting.
+      Only return the JSON object without any extra text or markdown formatting.
     `;
 
     const stream = await openrouter.chat.send({
@@ -172,9 +185,9 @@ exports.analyzeResume = async (req, res) => {
     }
     
     const jsonStr = fullResponse.replace(/```json|```/g, "").trim();
-    const suggestions = JSON.parse(jsonStr);
+    const resultJson = JSON.parse(jsonStr);
 
-    res.status(200).json({ success: true, suggestions });
+    res.status(200).json({ success: true, analysis: resultJson });
   } catch (err) {
     console.error("Resume analysis error:", err.message);
     res.status(500).json({ success: false, message: `AI Error: ${err.message}` });
