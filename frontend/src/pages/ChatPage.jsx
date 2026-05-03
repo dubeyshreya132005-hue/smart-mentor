@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
-import { Send, Search, User, Paperclip, MoreVertical, Phone, Video, Smile } from 'lucide-react';
+import { Send, Search, User, Paperclip, MoreVertical, Phone, Video, Smile, UserMinus, MessageSquare } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { Code } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
@@ -14,6 +16,7 @@ export default function ChatPage() {
   const [newMessage, setNewMessage] = useState('');
   const [socket, setSocket] = useState(null);
   const messagesEndRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchContacts();
@@ -145,9 +148,22 @@ export default function ChatPage() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => navigate(`/sandbox?with=${activeContact._id}`)}
+                  className="p-2 text-slate-400 hover:text-primary-400 hover:bg-primary-500/10 rounded-lg transition-all"
+                  title="Live Coding Sandbox"
+                >
+                  <Code className="w-4 h-4" />
+                </button>
                 <button className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all"><Phone className="w-4 h-4" /></button>
                 <button className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all"><Video className="w-4 h-4" /></button>
-                <button className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all"><MoreVertical className="w-4 h-4" /></button>
+                <button 
+                  onClick={() => handleDisconnect(activeContact._id)}
+                  className="p-2 text-red-400 hover:text-white hover:bg-red-500/20 rounded-lg transition-all"
+                  title="Remove Connection"
+                >
+                  <UserMinus className="w-4 h-4" />
+                </button>
               </div>
             </header>
 

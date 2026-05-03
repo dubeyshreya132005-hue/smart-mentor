@@ -7,5 +7,6 @@ router.get('/', protect, mentorController.getAllMentors);
 router.get('/match', protect, mentorController.getRecommendedMentors);
 router.post('/book', protect, mentorController.createBooking);
 router.get('/bookings', protect, mentorController.getMyBookings);
+router.put('/bookings/:id/status', protect, mentorController.updateBookingStatus);
 
 module.exports = router;

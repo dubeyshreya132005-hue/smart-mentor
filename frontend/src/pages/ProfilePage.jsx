@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { User, Mail, Briefcase, Code, Save, Plus, X, Loader2, ArrowLeft } from 'lucide-react';
+import { User, Mail, Briefcase, Code, Save, Plus, X, Loader2, ArrowLeft, Trophy } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function ProfilePage() {
@@ -12,8 +12,13 @@ export default function ProfilePage() {
     targetRole: user?.targetRole || '',
     skills: user?.skills || [],
     expertise: user?.expertise || [],
+    goals: user?.goals || '',
+    experience: user?.experience || 0,
+    hourlyRate: user?.hourlyRate || 0,
+    achievements: user?.achievements || [],
   });
   const [newSkill, setNewSkill] = useState('');
+  const [newAchievement, setNewAchievement] = useState('');
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -30,6 +35,19 @@ export default function ProfilePage() {
       [field]: [...formData[field], newSkill.trim()],
     });
     setNewSkill('');
+  };
+
+  const handleAddAchievement = () => {
+    if (!newAchievement.trim()) return;
+    if (formData.achievements.includes(newAchievement.trim())) {
+      setNewAchievement('');
+      return;
+    }
+    setFormData({
+      ...formData,
+      achievements: [...formData.achievements, newAchievement.trim()],
+    });
+    setNewAchievement('');
   };
 
   const handleRemoveSkill = (field, skill) => {
@@ -139,6 +157,45 @@ export default function ProfilePage() {
               </div>
             </div>
 
+            {user?.role === 'student' && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-400">Learning Goals</label>
+                <textarea
+                  name="goals"
+                  value={formData.goals}
+                  onChange={handleChange}
+                  rows="2"
+                  className="w-full bg-dark-800 border border-slate-700/50 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:border-primary-500 transition-all resize-none"
+                  placeholder="What are your main goals? e.g. Learn full stack development, prepare for interviews"
+                />
+              </div>
+            )}
+
+            {user?.role === 'mentor' && (
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-400">Experience (Years)</label>
+                  <input
+                    type="number"
+                    name="experience"
+                    value={formData.experience}
+                    onChange={handleChange}
+                    className="w-full bg-dark-800 border border-slate-700/50 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:border-primary-500 transition-all"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-400">Hourly Rate ($)</label>
+                  <input
+                    type="number"
+                    name="hourlyRate"
+                    value={formData.hourlyRate}
+                    onChange={handleChange}
+                    className="w-full bg-dark-800 border border-slate-700/50 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:border-primary-500 transition-all"
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="space-y-4">
               <label className="text-sm font-medium text-slate-400">
                 {user?.role === 'mentor' ? 'Fields of Expertise' : 'My Skills'}
@@ -184,6 +241,62 @@ export default function ProfilePage() {
                   ))
                 ) : (
                   <p className="text-sm text-slate-500 italic">No skills added yet.</p>
+                )}
+              </div>
+            </div>
+          </section>
+
+          {/* Achievements */}
+          <section className="glass border border-slate-800/50 rounded-2xl p-6 space-y-6">
+            <h2 className="text-lg font-bold text-white flex items-center gap-2">
+              <Trophy className="w-5 h-5 text-yellow-500" /> My Achievements
+            </h2>
+            
+            <div className="space-y-4">
+              <label className="text-sm font-medium text-slate-400">
+                Add your proudest professional or learning achievements
+              </label>
+              
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Trophy className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                  <input
+                    type="text"
+                    value={newAchievement}
+                    onChange={(e) => setNewAchievement(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddAchievement())}
+                    placeholder="e.g. Won 1st place in Hackathon, Completed 100 Days of Code"
+                    className="w-full bg-dark-800 border border-slate-700/50 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:border-yellow-500 transition-all"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddAchievement}
+                  className="px-4 py-2 bg-yellow-600 hover:bg-yellow-500 text-white rounded-xl transition-all flex items-center gap-2 font-semibold shadow-lg shadow-yellow-500/20"
+                >
+                  <Plus className="w-4 h-4" /> Add
+                </button>
+              </div>
+
+              <div className="flex flex-col gap-2 min-h-[40px] p-4 bg-dark-900/50 border border-slate-800/50 rounded-xl">
+                {formData.achievements.length > 0 ? (
+                  formData.achievements.map((achievement) => (
+                    <div
+                      key={achievement}
+                      className="flex items-center justify-between p-3 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 rounded-lg text-sm font-medium"
+                    >
+                      <span>🏆 {achievement}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSkill('achievements', achievement)}
+                        className="text-yellow-400 hover:text-red-400 transition-colors p-1"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-slate-500 italic">No achievements added yet.</p>
                 )}
               </div>
             </div>

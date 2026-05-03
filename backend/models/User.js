@@ -41,6 +41,7 @@ const userSchema = new mongoose.Schema(
     skills: [{ type: String }],
     interests: [{ type: String }],
     goals: { type: String, default: '' },
+    achievements: [{ type: String }],
     // Social links
     github: { type: String, default: '' },
     linkedin: { type: String, default: '' },

@@ -5,5 +5,6 @@ const { protect } = require('../middleware/authMiddleware');
 
 router.get('/contacts', protect, chatController.getContacts);
 router.get('/messages/:otherUserId', protect, chatController.getChatHistory);
+router.delete('/connection/:contactId', protect, chatController.disconnectContact);
 
 module.exports = router;

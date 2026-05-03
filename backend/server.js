@@ -56,6 +56,11 @@ io.on('connection', (socket) => {
     io.to(roomId).emit('receive-message', newMessage);
   });
 
+  socket.on('send-code', (data) => {
+    const { roomId, code } = data;
+    socket.to(roomId).emit('receive-code', code);
+  });
+
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
   });

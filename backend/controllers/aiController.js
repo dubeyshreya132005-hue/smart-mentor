@@ -57,22 +57,32 @@ exports.chatWithAI = async (req, res) => {
     const user = await User.findById(req.user.id);
 
     const genAI = getGenAI();
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const systemPrompt = `You are "MentorConnect AI", an elite, friendly, and highly technical career mentor.
+    You are directly mentoring ${user?.name || "a student"}.
+    - Their current skills: ${user?.skills?.join(', ') || 'None listed'}.
+    - Their target role: ${user?.targetRole || 'Full Stack Developer'}.
+    - Their preferred learning style: ${user?.learningStyle || 'friendly'}.
+    
+    CRITICAL GUIDELINES:
+    1. Provide extremely concise, actionable, and specific advice.
+    2. Use markdown formatting (code blocks, bold text, bullet points) heavily for readability.
+    3. Keep responses under 3 paragraphs unless they explicitly ask for a detailed tutorial or code.
+    4. Be highly encouraging but technically rigorous.
+    5. Always tailor your advice specifically to their target role and current skills.`;
+
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-2.5-flash",
+      systemInstruction: systemPrompt 
+    });
 
     const chat = model.startChat({
       history: history || [],
       generationConfig: {
-        maxOutputTokens: 500,
+        maxOutputTokens: 800,
       },
     });
 
-    const systemPrompt = `You are "MentorConnect AI", a friendly and professional career mentor. 
-    You are helping ${user?.name || "a student"}. 
-    Your goal is to provide concise, actionable advice on coding, career growth, and technical interviews.
-    If the user asks about their roadmap, refer to their target role: ${user?.targetRole || "Full Stack Developer"}.`;
-
-    const fullMessage = `${systemPrompt}\n\nUser: ${message}`;
-    const result = await chat.sendMessage(fullMessage);
+    const result = await chat.sendMessage(message);
     const response = await result.response;
     
     res.status(200).json({ success: true, reply: response.text() });

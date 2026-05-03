@@ -1,6 +1,8 @@
 const Message = require('../models/Message');
 const User = require('../models/User');
 
+const Booking = require('../models/Booking');
+
 // GET /api/chat/messages/:otherUserId
 exports.getChatHistory = async (req, res) => {
   try {
@@ -21,13 +23,45 @@ exports.getChatHistory = async (req, res) => {
 // GET /api/chat/contacts
 exports.getContacts = async (req, res) => {
   try {
-    // For now, return all mentors if student, and all students if mentor
-    // In a real app, this would be based on booking history or active chats
-    const roleToFind = req.user.role === 'mentor' ? 'student' : 'mentor';
-    const contacts = await User.find({ role: roleToFind }).select('name avatar role targetRole');
+    const userId = req.user.id;
+    const isMentor = req.user.role === 'mentor';
     
-    res.status(200).json({ success: true, contacts });
+    // Only return users where an accepted booking exists
+    const bookings = await Booking.find({
+      $or: [{ student: userId }, { mentor: userId }],
+      status: 'accepted'
+    }).populate(isMentor ? 'student' : 'mentor', 'name avatar role targetRole');
+
+    const contactsMap = new Map();
+    bookings.forEach(b => {
+      const contact = isMentor ? b.student : b.mentor;
+      if (contact) contactsMap.set(contact._id.toString(), contact);
+    });
+    
+    res.status(200).json({ success: true, contacts: Array.from(contactsMap.values()) });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Error fetching contacts.' });
+  }
+};
+
+// DELETE /api/chat/connection/:contactId
+exports.disconnectContact = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { contactId } = req.params;
+    
+    await Booking.updateMany({
+      $or: [
+        { student: userId, mentor: contactId },
+        { student: contactId, mentor: userId }
+      ],
+      status: 'accepted'
+    }, {
+      status: 'completed'
+    });
+    
+    res.status(200).json({ success: true, message: 'Connection removed.' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Error disconnecting.' });
   }
 };

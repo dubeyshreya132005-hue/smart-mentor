@@ -38,6 +38,17 @@ export default function CareerRoadmap() {
     }
   };
 
+  const toggleMilestone = (index) => {
+    setRoadmap(prev => {
+      const newRoadmap = [...prev];
+      newRoadmap[index] = { 
+        ...newRoadmap[index], 
+        status: newRoadmap[index].status === 'completed' ? 'pending' : 'completed' 
+      };
+      return newRoadmap;
+    });
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-dark-900 flex flex-col items-center justify-center p-6 text-center">
@@ -95,24 +106,28 @@ export default function CareerRoadmap() {
           <div className="relative space-y-8 before:absolute before:left-[19px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-800">
             {roadmap.map((milestone, idx) => (
               <div key={idx} className="relative pl-12 group">
-                <div className={`absolute left-0 top-1.5 w-10 h-10 rounded-full flex items-center justify-center z-10 transition-all border-4 border-dark-900 ${
-                  milestone.status === 'completed' 
-                    ? 'bg-green-500/20 text-green-500 shadow-[0_0_15px_rgba(34,197,94,0.3)]' 
-                    : 'bg-slate-800 text-slate-500 group-hover:bg-primary-500/20 group-hover:text-primary-400'
-                }`}>
+                <button 
+                  onClick={() => toggleMilestone(idx)}
+                  className={`absolute left-0 top-1.5 w-10 h-10 rounded-full flex items-center justify-center z-10 transition-all border-4 border-dark-900 cursor-pointer ${
+                    milestone.status === 'completed' 
+                      ? 'bg-green-500/20 text-green-500 shadow-[0_0_15px_rgba(34,197,94,0.3)]' 
+                      : 'bg-slate-800 text-slate-500 hover:bg-primary-500/20 hover:text-primary-400 group-hover:border-primary-500/30'
+                  }`}>
                   {milestone.status === 'completed' ? <CheckCircle2 className="w-5 h-5" /> : <Circle className="w-5 h-5" />}
-                </div>
+                </button>
 
                 <div className="glass border border-slate-800/50 rounded-2xl p-6 hover:border-slate-700 transition-all group-hover:translate-x-1">
                   <div className="flex items-start justify-between mb-3">
                     <h3 className={`text-xl font-bold ${milestone.status === 'completed' ? 'text-white' : 'text-slate-300'}`}>
                       {milestone.title}
                     </h3>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-widest ${
-                      milestone.status === 'completed' ? 'bg-green-500/10 text-green-400' : 'bg-slate-800 text-slate-500'
-                    }`}>
-                      {milestone.status}
-                    </span>
+                    <button 
+                      onClick={() => toggleMilestone(idx)}
+                      className={`text-[10px] font-bold px-3 py-1 rounded uppercase tracking-widest transition-all cursor-pointer hover:opacity-80 ${
+                        milestone.status === 'completed' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:bg-primary-500/20 hover:text-primary-400 hover:border-primary-500/30'
+                      }`}>
+                      {milestone.status === 'completed' ? '✓ COMPLETED' : 'MARK AS DONE'}
+                    </button>
                   </div>
                   <p className="text-slate-400 text-sm mb-4 leading-relaxed">
                     {milestone.description}

@@ -5,7 +5,7 @@ const Booking = require('../models/Booking');
 exports.getAllMentors = async (req, res) => {
   try {
     const { skill, search } = req.query;
-    let query = { role: 'mentor', isApproved: true };
+    let query = { role: 'mentor' };
 
     if (skill) {
       query.expertise = { $in: [new RegExp(skill, 'i')] };
@@ -33,14 +33,21 @@ exports.getRecommendedMentors = async (req, res) => {
 
     const studentSkills = student.skills || [];
     const targetRole = student.targetRole || '';
+    const studentGoals = student.goals || '';
 
     // Find mentors who have expertise in student's skills or target role
-    let mentors = await User.find({ role: 'mentor', isApproved: true }).select('-password');
+    let mentors = await User.find({ role: 'mentor' }).select('-password');
+
+    // If there are less than 5 mentors on the platform, return all of them
+    if (mentors.length < 5) {
+      return res.status(200).json({ success: true, recommendations: mentors });
+    }
 
     // Simple matching algorithm: score based on skill overlap
     const scoredMentors = mentors.map(mentor => {
       let score = 0;
       const mentorExpertise = mentor.expertise || [];
+      const mentorBio = (mentor.bio || '').toLowerCase();
       
       // Points for overlapping skills
       studentSkills.forEach(skill => {
@@ -50,8 +57,18 @@ exports.getRecommendedMentors = async (req, res) => {
       });
 
       // Points for matching target role
-      if (mentor.bio.toLowerCase().includes(targetRole.toLowerCase())) {
+      if (targetRole && mentorBio.includes(targetRole.toLowerCase())) {
         score += 30;
+      }
+
+      // Points for matching goals
+      if (studentGoals) {
+        const goalKeywords = studentGoals.split(' ').filter(w => w.length > 3);
+        goalKeywords.forEach(keyword => {
+          if (mentorBio.includes(keyword.toLowerCase()) || mentorExpertise.some(e => e.toLowerCase().includes(keyword.toLowerCase()))) {
+             score += 10;
+          }
+        });
       }
 
       // Bonus for high ratings
@@ -104,5 +121,21 @@ exports.getMyBookings = async (req, res) => {
     res.status(200).json({ success: true, bookings });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Error fetching bookings.' });
+  }
+};
+
+// PUT /api/mentors/bookings/:id/status
+exports.updateBookingStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) return res.status(404).json({ success: false, message: 'Booking not found.' });
+    
+    booking.status = status;
+    await booking.save();
+    
+    res.status(200).json({ success: true, booking });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Error updating booking status.' });
   }
 };

@@ -11,6 +11,8 @@ import ChatPage from './pages/ChatPage';
 import ProfilePage from './pages/ProfilePage';
 import CareerRoadmap from './pages/CareerRoadmap';
 import AIAssistantPage from './pages/AIAssistantPage';
+import SandboxPage from './pages/SandboxPage';
+import AchievementsPage from './pages/AchievementsPage';
 
 // Protected Route wrapper
 function ProtectedRoute({ children }) {
@@ -144,10 +146,10 @@ function App() {
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
           <Route path="/mentors" element={<ProtectedRoute><MentorSearchPage /></ProtectedRoute>} />
           <Route path="/sessions" element={<ProtectedRoute><div className="p-8 text-white bg-dark-900 min-h-screen">Sessions — Phase 3</div></ProtectedRoute>} />
-          <Route path="/sandbox" element={<ProtectedRoute><div className="p-8 text-white bg-dark-900 min-h-screen">Code Sandbox — Phase 5</div></ProtectedRoute>} />
+          <Route path="/sandbox" element={<ProtectedRoute><SandboxPage /></ProtectedRoute>} />
           <Route path="/messages" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
           <Route path="/ai-assistant" element={<ProtectedRoute><AIAssistantPage /></ProtectedRoute>} />
-          <Route path="/achievements" element={<ProtectedRoute><div className="p-8 text-white bg-dark-900 min-h-screen">Achievements — Phase 6</div></ProtectedRoute>} />
+          <Route path="/achievements" element={<ProtectedRoute><AchievementsPage /></ProtectedRoute>} />
           <Route path="/career-gps" element={<ProtectedRoute><CareerRoadmap /></ProtectedRoute>} />
         </Routes>
       </AuthProvider>
